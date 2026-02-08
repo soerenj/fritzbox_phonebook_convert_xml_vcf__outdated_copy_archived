@@ -39,8 +39,8 @@
 	"name": "convert phonebook Fritzbox",
 	"description": "convert phonebook files from router Fritzbox .xml to .vcf (vcard) and backwards",
 	"programmingLanguage": "javascript",
-	"dateModified": "2025-06-11",
-	"softwareVersion": "0.34",
+	"dateModified": "2026-02-08",
+	"softwareVersion": "0.35",
 	"inLanguage": ["en", "de"],
     "mainEntityOfPage":"https://soerenj.github.io/fritzbox_phonebook_convert_xml_vcf/fritzbox_phonebook_convert_vcf.html",
 	"url":"https://soerenj.github.io/fritzbox_phonebook_convert_xml_vcf/fritzbox_phonebook_convert_vcf.html",
@@ -51,8 +51,8 @@
 </script>
 <!--
  /*
- * version: 0.34
- * date: 2025-06-11
+ * version: 0.35
+ * date: 2026-02-08
  *
  * Licence 
  *
@@ -358,13 +358,13 @@ END:VCARD
       <span lang="en" class="en">phone-type (mobile,work,...)</span>
       <span lang="de" class="de">Telefon-Type (mobile,work,...)</span>
     </label> &nbsp;
-    <input type="checkbox" id="setting__xml2vcf__also_prio" checked autocomplete="off" />
-    <label for="setting__xml2vcf__also_prio">
-      <span lang="en" class="en">marked Note for important Person (=just a note)</span>
-      <span lang="de" class="de">markierung als wichtige Person(nur eine notiz)</span>
+    <input type="checkbox" id="setting__xml2vcf__also_importantPersonCategorie" checked autocomplete="off" />
+    <label for="setting__xml2vcf__also_importantPersonCategorie">
+      <span lang="en" class="en">marked Note for important Person Categorie (=just a note)</span>
+      <span lang="de" class="de">markierung als wichtige Person Kategorie (nur eine notiz)</span>
     </label> &nbsp;
     <input type="checkbox" id="setting__xml2vcf__also_email" checked autocomplete="off" />
-    <label for="setting__xml2vcf__also_prio">
+    <label for="setting__xml2vcf__also_email">
       <span lang="en" class="en">Email</span>
       <span lang="de" class="de">Email</span>
     </label>
@@ -630,7 +630,7 @@ function convert_to_vcf(multipleDirectDownload=false,multipleDirectDownloadZip=f
  var add_charset = document.getElementById('setting__xml2vcf__add_charset').checked;
  var export_also_phonetype = document.getElementById('setting__xml2vcf__also_phonetype').checked;
  var export_also_email = document.getElementById('setting__xml2vcf__also_email').checked;
- var export_also_prio = document.getElementById('setting__xml2vcf__also_prio').checked;
+ var export_also_importantPersonCategorie = document.getElementById('setting__xml2vcf__also_importantPersonCategorie').checked;
  var text = document.getElementById('phonebook_xml').value;
  parser = new DOMParser();
  xmlDoc = parser.parseFromString(text, "text/xml");
@@ -714,7 +714,7 @@ function convert_to_vcf(multipleDirectDownload=false,multipleDirectDownloadZip=f
     line += ":"+phone+'\r\n';
     out += foldLineMaybe(line);
   }
-  if(export_also_prio && telephony.length>0 && telephony[0].getAttribute('prio')!='')out += "NOTE:importantContact(fritzbox)\r\n";
+  if(export_also_importantPersonCategorie && telephony.length>0 && contact.getElementsByTagName("category")[0].innerHTML!=0){out += "NOTE:importantContact(fritzbox)\r\n"; }
   
   //email
   if(export_also_email){
@@ -866,7 +866,7 @@ function convert_to_xml(){
   var email_pref='';
   var typeOut = '';
   var v = '';
-  var prio=false;
+  var importantPersonCategorie=false;
   
   //un-folded lines and merge them ( for very long text lines)
   var elements2 = Array();
@@ -941,7 +941,7 @@ function convert_to_xml(){
         phoneOut += '<number '+typeOut+' id="'+j+'">'+sanitize_personname(phone,false)+'</number>\n';
     }
     if(str.substr(0,8).toUpperCase()=='VERSION:')v=str.substr(8);
-    if(str.substr(0,5).toUpperCase()=='NOTE:' && str.indexOf('importantContact(fritzbox)')>0)prio=true;
+    if(str.substr(0,5).toUpperCase()=='NOTE:' && str.indexOf('importantContact(fritzbox)')>0)importantPersonCategorie=true;
     if(str.substr(0,5).toUpperCase()=='EMAIL'){ 
       var match = str.match(/PREF=([0-9]{1,3})[;:]/i);
       var prefNewSetOrIsHigher=false;
@@ -953,9 +953,9 @@ function convert_to_xml(){
   
   if(email_temp!='' && email_temp.length>3)EmailOut+='<email>'+email_temp+'</email>';
 
-  var catNumber=0;  if(prio) catNumber = 1;
+  var catNumber=0;  if(importantPersonCategorie) catNumber = 1;
   out += '<contact>\n<category>'+catNumber+'</category>\n';
-  if(prio)phoneOut=phoneOut.replace(/(<number[^>]*)(>)/,'$1 prio="1">');
+  //how to detect the main-Number? phoneOut=phoneOut.replace(/(<number[^>]*)(>)/,'$1 prio="1">');
   if(v=="2.1")personOut = personOut.replace(/=/g,'%');
   if(v=="2.1")personOut = decodeURI(personOut);
   out += personOut+'<telephony nid="'+i+'">\n' + phoneOut;
