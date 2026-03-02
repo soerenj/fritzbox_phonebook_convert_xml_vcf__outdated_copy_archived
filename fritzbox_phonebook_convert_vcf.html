@@ -39,8 +39,8 @@
 	"name": "convert phonebook Fritzbox",
 	"description": "convert phonebook files from router Fritzbox .xml to .vcf (vcard) and backwards",
 	"programmingLanguage": "javascript",
-	"dateModified": "2026-02-08",
-	"softwareVersion": "0.35",
+	"dateModified": "2026-03-02",
+	"softwareVersion": "0.351",
 	"inLanguage": ["en", "de"],
     "mainEntityOfPage":"https://soerenj.github.io/fritzbox_phonebook_convert_xml_vcf/fritzbox_phonebook_convert_vcf.html",
 	"url":"https://soerenj.github.io/fritzbox_phonebook_convert_xml_vcf/fritzbox_phonebook_convert_vcf.html",
@@ -51,8 +51,8 @@
 </script>
 <!--
  /*
- * version: 0.35
- * date: 2026-02-08
+ * version: 0.351
+ * date: 2026-03-02
  *
  * Licence 
  *
@@ -646,7 +646,7 @@ function convert_to_vcf(multipleDirectDownload=false,multipleDirectDownloadZip=f
  }
 
  var out, outTotal, contacts, contact, person, telephony, telefone_numbers, telefone_numbers_type, telefone_numbers_prio, phone, tmp;
- out = ''; outTotal=''; logError=[];
+ out = ''; outTotal=''; var logError=[];
  var contacts = xmlDoc.getElementsByTagName("contact");
  document.getElementById('ready_note_export_to_vcf_multivcard__counter_splited1').innerText=contacts.length;
  document.getElementById('ready_note_export_to_vcf_multivcard__counter_splited2').innerText=contacts.length;
@@ -801,7 +801,7 @@ function convert_to_xml(){
  if(selectedLanguage=="de") text__charset_auto_change_possible="Erkannter Zeichensatz (engl. charset): INSERTFOUNDCHARSET\nNeustarten mit diesen nun richtig eingestellten Zeichensatz?"
  var text = document.getElementById('phonebook_vcf').value;
  var person, email, v;
- var out = '';
+ var out = '';  var logError=[];
  var allowedPhoneTypes = new Array('WORK','HOME','MOBILE','FAX_WORK');
  var charset_unsupported_found = new Array();
  var charsetMissingCounter=0;
@@ -942,7 +942,18 @@ function convert_to_xml(){
         if(type=='')
           if( document.getElementById("setting__2xml__phonenumber_edit_detect_mobile__active").checked && is_this_a_mobile_phonenumber(phone)) type='mobile';
         if(type!='') typeOut='type="'+type.toLowerCase()+'"';
-        phoneOut += '<number '+typeOut+' id="'+j+'">'+sanitize_personname(phone,false)+'</number>\n';
+        var phone_sani = sanitize_personname(phone,true);
+        if(phone_sani.length>0)
+        {
+          if(phone_sani.length>2 && phone_sani.search(/[0-9]{3}/)>=0)
+          {
+            phoneOut += '<number '+typeOut+' id="'+j+'">'+sanitize_personname(phone,false)+'</number>\n';
+          }
+          else
+          {
+            logError.push("Warning: Name: "+personOut+" ; Number ID "+j+": number too short to add / or does not contains 3 numbers: "     +phone_sani);
+          }
+        }
     }
     if(str.substr(0,8).toUpperCase()=='VERSION:')v=str.substr(8);
     if(str.substr(0,5).toUpperCase()=='NOTE:' && str.indexOf('importantContact(fritzbox)')>0)importantPersonCategorie=true;
@@ -968,6 +979,7 @@ function convert_to_xml(){
  }
  out += '</phonebook>\n</phonebooks>';
  document.getElementById('phonebook_xml').value = out;
+ show_errors(logError);
  return out;
  //download('xml',out);
 }
