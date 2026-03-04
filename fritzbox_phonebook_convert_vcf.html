@@ -399,7 +399,7 @@ END:VCARD
     <span lang="en" class="en">Name of new Phonebook-Name: </span>
     <span lang="de" class="de">Name des Telefonbuches:</span>
   </label>
-  <input type="text" value="phonebook_name" title="" id="new_phonebook_name" onchange="new_phonebook_name=this.value" autocomplete="off" /> 
+  <input type="text" value="phonebook_name" title="" id="phonebook_name" onKeyUp="document.getElementById('phonebook_name_okbutton').style.display=''" onchange="updatePhonebookName(this.value)" autocomplete="off" /> <button value="ok" id="phonebook_name_okbutton" style="display:none" >OK</button>
   <span style="color:#999;">
     <span lang="en" class="en">That is the shown new Phonebook-Name in the Fritzbox. This is not the filename.</span>
     <span lang="de" class="de">Das ist der neue Telefonbuch-Namen in der Fritzbox selbst. Es ist nicht der Datei-Name.</span>
@@ -524,7 +524,7 @@ if(document.getElementById('file-input_drag-n-drop').value!='' ||
    document.getElementById('file-input_xml').value!='' ||
    document.getElementById('file-input_format2').value!=''||
    document.getElementById('file-input_folder').value!='')document.getElementById('file-input_reset').style.display='block';
-document.getElementById('new_phonebook_name').value=new_phonebook_name;
+document.getElementById('phonebook_name').value=new_phonebook_name;
 var file_upload__accepted_filetype = ".vcf,.xml,.vcard,.text/vcard,text/x-vcard,text/directory;profile=vCard,text/directory,application/xml,text/xml";
 var file_upload__accepted_filetype__xml = ".xml,application/xml,text/xml";
 var file_upload__accepted_filetype__format2 = ".vcf,.vcard,.text/vcard,text/x-vcard,text/directory;profile=vCard,text/directory";
@@ -809,7 +809,7 @@ function convert_to_xml(){
  if( settings_charset_set=="CUSTOMTEXT") settings_charset_set=document.getElementById('settings_charset_set_customtext').value.toUpperCase();
  document.getElementById('settings_charset_set_detected_inlastvcf').innerText='';
 
- out += '<?xml version="1.0" encoding="utf-8"?>\n<phonebooks>\n<phonebook owner="" name="'+new_phonebook_name+'">\n';
+ out += '<?xml version="1.0" encoding="utf-8"?>\n<phonebooks>\n<phonebook owner="" name="'+sanitize_realName(new_phonebook_name)+'">\n';
 
  var contacts = text.split('BEGIN:VCARD');
  //detect charset
@@ -1773,6 +1773,11 @@ class Zip {
 	}
 }
 
+function updatePhonebookName(value){
+    new_phonebook_name=value;
+    document.getElementById('phonebook_xml').value = document.getElementById('phonebook_xml').value.replace(new RegExp("(<phonebook[^>]*name=\")([^\"]*)(\")"),"$1"+sanitize_realName(new_phonebook_name)+"$3");
+    document.getElementById('phonebook_name_okbutton').style.display='none';
+}
 
 </script>
 </body></html>
