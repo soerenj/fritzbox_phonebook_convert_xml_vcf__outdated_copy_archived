@@ -39,8 +39,8 @@
 	"name": "convert phonebook Fritzbox",
 	"description": "convert phonebook files from router Fritzbox .xml to .vcf (vcard) and backwards",
 	"programmingLanguage": "javascript",
-	"dateModified": "2026-03-02",
-	"softwareVersion": "0.351",
+	"dateModified": "2026-03-04",
+	"softwareVersion": "0.352",
 	"inLanguage": ["en", "de"],
     "mainEntityOfPage":"https://soerenj.github.io/fritzbox_phonebook_convert_xml_vcf/fritzbox_phonebook_convert_vcf.html",
 	"url":"https://soerenj.github.io/fritzbox_phonebook_convert_xml_vcf/fritzbox_phonebook_convert_vcf.html",
@@ -51,8 +51,8 @@
 </script>
 <!--
  /*
- * version: 0.351
- * date: 2026-03-02
+ * version: 0.352
+ * date: 2026-03-04
  *
  * Licence 
  *
@@ -278,8 +278,8 @@ END:VCARD
 
     <input type="checkbox" id="setting__2xml__phonenumber_edit_detect_mobile__active" autocomplete="off" checked/>
     <label for="setting__2xml__phonenumber_edit_detect_mobile__active">
-     <span lang="en" class="en">Detect mobile phone-number (if already not set). <span style="color:#999">(to fit in the number categorie)</span></span>
-     <span lang="de" class="de">Mobilfunk-Nummer automatisch erkennen (wenn noch nicht festgelegt). <span style="color:#999">(damit die Nummern Kategorie passt)</span></span>
+     <span lang="en" class="en">Detect mobile phone-number (if already not set). <span style="color:#999">(to fit in the number type)</span></span>
+     <span lang="de" class="de">Mobilfunk-Nummer automatisch erkennen (wenn noch nicht festgelegt). <span style="color:#999">(damit die Nummern Type passt)</span></span>
     </label>
     <label for="setting__2xml__phonenumber_edit_detect_mobile__your_countrycode">
      <span lang="en" class="en">Therefore, set your own country:</span>
@@ -645,7 +645,7 @@ function convert_to_vcf(multipleDirectDownload=false,multipleDirectDownloadZip=f
    var z = new Zip(zFilen+'_v'+v.replace(/\./,'-'));
  }
 
- var out, outTotal, contacts, contact, person, telephony, telefone_numbers, telefone_numbers_type, telefone_numbers_prio, phone, tmp;
+ var out, outTotal, contacts, contact, realName, telephony, telefone_numbers, telefone_numbers_type, telefone_numbers_prio, phone, tmp;
  out = ''; outTotal=''; var logError=[];
  var contacts = xmlDoc.getElementsByTagName("contact");
  document.getElementById('ready_note_export_to_vcf_multivcard__counter_splited1').innerText=contacts.length;
@@ -685,18 +685,18 @@ function convert_to_vcf(multipleDirectDownload=false,multipleDirectDownloadZip=f
   if(v=="3.0") out += 'VERSION:3.0\r\n';
   if(v=="4.0") out += 'VERSION:4.0\r\n';
   contact = contacts[i];
-  person  = contact.getElementsByTagName("person")[0].getElementsByTagName("realName")[0].firstChild.nodeValue;
+  realName  = contact.getElementsByTagName("person")[0].getElementsByTagName("realName")[0].firstChild.nodeValue;
   telephony = contact.getElementsByTagName("telephony")[0].getElementsByTagName("number");
   
   //name
-  tmp = person.replace('\r\n','');
+  tmp = realName.replace('\r\n','');
   if(uri_encode  && v=="2.1")tmp = encodeURI(tmp).replace(/%/g,'=');
   out += foldLineMaybe('N' +propertyAdd+":"+tmp+'\r\n');
   out += foldLineMaybe('FN'+propertyAdd+":"+tmp+'\r\n');
   
   //phone TEL
   for(var j=0;j<telephony.length;j++){
-    if(null==telephony[j].firstChild || undefined==telephony[j].firstChild.nodeValue || null==telephony[j].firstChild.nodeValue) { logError.push(person); if(telephony[j].firstChild==null)logError.push('empty number:'); logError.push(telephony[j]); continue; }
+    if(null==telephony[j].firstChild || undefined==telephony[j].firstChild.nodeValue || null==telephony[j].firstChild.nodeValue) { logError.push(realName); if(telephony[j].firstChild==null)logError.push('empty number:'); logError.push(telephony[j]); continue; }
 
     phone = myTrimQuotes(telephony[j].firstChild.nodeValue);
     if(document.getElementById('setting__xml2__phonenumber_edit_your_areacode__active').checked &&
@@ -735,7 +735,7 @@ function convert_to_vcf(multipleDirectDownload=false,multipleDirectDownloadZip=f
   
   out += "END:VCARD\r\n";
   if(multipleDirectDownload){
-    var filen=person
+    var filen=realName;
     if(setting__xml2vcf__splited__filename_fullname=='inital_letters') filen=filen.replace(/([^ \.;,])([^ \.;,])*/g,'$1');
     if(multipleDirectDownloadZip) z.str2zip(filen+"_vcard"+v.replace(/\./,'-')+".vcf", out, '');
     else prepare_and_download(out,filen,'vcf');
@@ -800,7 +800,7 @@ function convert_to_xml(){
  var text__charset_auto_change_possible="Detect charset: INSERTFOUNDCHARSET\nRestart with this correted charset?"
  if(selectedLanguage=="de") text__charset_auto_change_possible="Erkannter Zeichensatz (engl. charset): INSERTFOUNDCHARSET\nNeustarten mit diesen nun richtig eingestellten Zeichensatz?"
  var text = document.getElementById('phonebook_vcf').value;
- var person, email, v;
+ var realName, email, v;
  var out = '';  var logError=[];
  var allowedPhoneTypes = new Array('WORK','HOME','MOBILE','FAX_WORK');
  var charset_unsupported_found = new Array();
@@ -925,12 +925,12 @@ function convert_to_xml(){
     var str = elements[j];
     if((str.substr(0,3).toUpperCase()=='FN:' || str.substr(0,3).toUpperCase()=='FN;') && vcf_use_which_name=='FN'){
         strOut = str.substr( str.indexOf(':') + 1 );
-        strOut = sanitize_personname(strOut,false);
+        strOut = sanitize_realName(strOut,false);
         personOut = '<person><realName>'+strOut+'</realName></person>\n';
     }
     if((str.substr(0,2).toUpperCase()=='N:' || str.substr(0,2).toUpperCase()=='N;') && vcf_use_which_name=='N'){
         strOut = str.substr( str.indexOf(':') + 1 );
-        strOut = sanitize_personname(strOut,false);
+        strOut = sanitize_realName(strOut,false);
         personOut = '<person><realName>'+strOut+'</realName></person>\n';
     }
     
@@ -942,12 +942,12 @@ function convert_to_xml(){
         if(type=='')
           if( document.getElementById("setting__2xml__phonenumber_edit_detect_mobile__active").checked && is_this_a_mobile_phonenumber(phone)) type='mobile';
         if(type!='') typeOut='type="'+type.toLowerCase()+'"';
-        var phone_sani = sanitize_personname(phone,true);
+        var phone_sani = sanitize_realName(phone,true);
         if(phone_sani.length>0)
         {
           if(phone_sani.length>2 && phone_sani.search(/[0-9]{3}/)>=0)
           {
-            phoneOut += '<number '+typeOut+' id="'+j+'">'+sanitize_personname(phone,false)+'</number>\n';
+            phoneOut += '<number '+typeOut+' id="'+j+'">'+sanitize_realName(phone,false)+'</number>\n';
           }
           else
           {
@@ -962,7 +962,7 @@ function convert_to_xml(){
       var prefNewSetOrIsHigher=false;
       if(match!=null && match.length>1 && match[1]>0 && ( match[1]<email_pref || email_pref=='') ){
         prefNewSetOrIsHigher=true; email_pref=match[1]; }
-      if(email_temp=='' || prefNewSetOrIsHigher) email_temp = sanitize_personname(str.substr( str.indexOf(':')+1),false);
+      if(email_temp=='' || prefNewSetOrIsHigher) email_temp = sanitize_realName(str.substr( str.indexOf(':')+1),false);
     }
   }
   
@@ -985,25 +985,25 @@ function convert_to_xml(){
 }
 
 
-function sanitize_personname(person,inkluding_quotes){
-  person = person.replace(/^\s+|\s+$/gm,'');        //trim spaces
+function sanitize_realName(realName,inkluding_quotes){
+  realName = realName.replace(/^\s+|\s+$/gm,'');        //trim spaces
   //replace character & , otherwise import to fritzbox not possible
-  person = person.replace(/&(?!amp;)/gm,'&amp;');
+  realName = realName.replace(/&(?!amp;)/gm,'&amp;');
   //replace character " , otherwise import to fritzbox not possible //please dont change the order
-  person = person.replace(/""/gm,"&quot;");       //handle "" (from libre office export of single " possible )
-  person = person.replace(/\"/gm,"&quot;");       //handle "
-  person = person.replace(/"/gm,"&quot;");        //handle "
-  person = person.replace(/</gm,"&gt;");          //handle <
-  person = person.replace(/>/gm,"&lt;");          //handle >
+  realName = realName.replace(/""/gm,"&quot;");       //handle "" (from libre office export of single " possible )
+  realName = realName.replace(/\"/gm,"&quot;");       //handle "
+  realName = realName.replace(/"/gm,"&quot;");        //handle "
+  realName = realName.replace(/</gm,"&gt;");          //handle <
+  realName = realName.replace(/>/gm,"&lt;");          //handle >
   if(inkluding_quotes==undefined || inkluding_quotes){
     var tmp = '';
-    tmp= person.replace(/^"(.*)"$/gm,'$1'); //trim " (only once at beginn and end)
-    if(tmp.length>0) person = tmp;
-    tmp= person.replace(/^'?(.*)'?$/gm,'$1'); //trim ' (only once at beginn and end)
-    if(tmp.length>0) person = tmp;
+    tmp= realName.replace(/^"(.*)"$/gm,'$1'); //trim " (only once at beginn and end)
+    if(tmp.length>0) realName = tmp;
+    tmp= realName.replace(/^'?(.*)'?$/gm,'$1'); //trim ' (only once at beginn and end)
+    if(tmp.length>0) realName = tmp;
   }
-  person = person.replace(/^\s+|\s+$/gm,'');        //trim spaces (again)
-  return person.trim();
+  realName = realName.replace(/^\s+|\s+$/gm,'');        //trim spaces (again)
+  return realName.trim();
 }
 
 function get_filename(filename_with_path) {
