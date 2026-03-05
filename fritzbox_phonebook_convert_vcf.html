@@ -72,8 +72,8 @@ input{ cursor: pointer }
 /*textarea{ min-width:500pt;width:80%;height:220pt;}*/
 textarea{ width:100%;height:220pt;}
 #select_file_xml_div{float:left;width:35%;padding-right:5%;padding-left:5%;}
-#select_file_vcf_div{float:right;width:35%;padding-left:5%;padding-right:5%;}
-#select_file_buttons_div{float:right;width:10%;padding-left:0%;padding-right:0%;text-align:center;}
+#select_file_vcf_div{float:right;width:35%;padding-left:2.5%;padding-right:2.5%;}
+#select_file_buttons_div{float:right;width:15%;padding-left:0%;padding-right:0%;text-align:center;}
 #select_file_buttons_div button{ display:block; margin: 0em 0.5em 0.5em 0em;}
 .select_file_button_arrow_ud{ display:none; }
 @media (min-height:600pt){ 
@@ -199,7 +199,7 @@ input + label {vertical-align:top; }
 
 <div id="select_file_and_textarea" class="advanced_view advanced_view__hide">
 <div id="select_file_xml_div">
-<label for="phonebook_xml">From Fritzbox .XML File:</label><br>
+<label for="phonebook_xml">Fritzbox .XML File:</label><br>
 <textarea id="phonebook_xml" autocomplete="off">
 <?xml version="1.0" encoding="utf-8"?>
 <phonebooks>
@@ -240,7 +240,7 @@ input + label {vertical-align:top; }
 </div>
 
 <div id="select_file_vcf_div">
-<label for="phonebook_vcf">From .VCF File:</label> <br/>
+<label for="phonebook_vcf">.VCF File:</label> <br/>
 <textarea id="phonebook_vcf" autocomplete="off">BEGIN:VCARD
 VERSION:4.0
 N:Emil Duck
@@ -261,15 +261,16 @@ END:VCARD
 
 <div id="select_file_buttons_div">
  <br>
- <button type="button" onclick="convert_to_vcf()">convert <span style="font-size:18pt" class="select_file_button_arrow_rl">➡</span><span style="font-size:18pt" class="select_file_button_arrow_ud">⬇</span> xml to vcf (vcard) </button> 
- <button type="button" onclick="convert_to_xml()" class>convert <span style="font-size:18pt" class="select_file_button_arrow_rl">⬅</span><span style="font-size:18pt" class="select_file_button_arrow_ud">⬆</span> vcf (vcard) to xml</button>
+ <button type="button" onclick="convert_to_vcf()"><span style="font-size:18pt" class="select_file_button_arrow_rl"><!--➡-->🢧<!--➪--></span><span style="font-size:18pt" class="select_file_button_arrow_ud">⬇</span> convert xml to vcf (vcard) </button> 
+ <button type="button" onclick="convert_to_xml()" class><span style="font-size:18pt" class="select_file_button_arrow_rl"><!--⬅-->🢤</span><span style="font-size:18pt" class="select_file_button_arrow_ud">⬆</span> convert vcf (vcard) to xml</button>
  <br>
- <fieldset style="margin-bottom:5pt;border-radius:5pt;"><legend>Download</legend>
+ <fieldset style="margin-bottom:5pt;border-radius:5pt;"><legend>Download:</legend>
+   <!-- &nbsp;<span style="font-size:150%;overflow: hidden;line-height: 100%;">⭳</span> -->
    <!--<button type="button" title="Download one file" onclick="download_one_file_ask()" >Download</button>-->
-   <button style="display:inline" type="button" title="Download one file" onclick="prepare_and_download(document.getElementById('phonebook_xml').value,'','xml');" >xml</button>
-   <button style="display:inline" type="button" title="Download one file" onclick="prepare_and_download(document.getElementById('phonebook_vcf').value,'','vcf');" >vcf</button>
+   <button style="display:inline" type="button" title="Download one file" onclick="prepare_and_download(document.getElementById('phonebook_xml').value,'','xml');" >.xml <span style="font-size:150%;overflow: hidden;line-height: 100%;">⭳</span></button>
+   <button style="display:inline" type="button" title="Download one file" onclick="prepare_and_download(document.getElementById('phonebook_vcf').value,'','vcf');" >.vcf <span style="font-size:150%;overflow: hidden;line-height: 100%;">⭳</span></button>
  </fieldset>
- <button type="button" title="reset to default" onclick="reset_to_default()" > 🗙 Reset to Test-Values</button>  
+ <button type="button" title="reset to default" onclick="reset_to_default()" > ⌦ <!-- 🗙 --> <span lang="en" class="en">Delete & reset to Start-Example</span><span lang="de" class="de">Löschen & setze auf Start-Beispiel</span></button>  
 </div>
 
 <div style="clear:both" ></div>
