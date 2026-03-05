@@ -961,9 +961,10 @@ function convert_to_xml(){
         var phone_sani = sanitize_realName(phone,true);
         if(phone_sani.length>0)
         {
-          if(phone_sani.length>2 && phone_sani.search(/[0-9]{3}/)>=0)
+          if( sanitize_realName(phone).length>2 &&
+             (sanitize_realName(phone).search(/[0-9]{3}/)>=0 || sanitize_realName(phone).search(/\*\*[0-9]{1}/)>=0) )
           {
-            phoneOut += '        <number '+typeOut+'id="'+j+'">'+sanitize_realName(phone,false)+'</number>\n';
+            phoneOut += '        <number '+typeOut+'id="'+j+'">'+sanitize_realName(phone,false)+'</number>\n'; //number has a min length 3 and minimal three numbers //or must be internal number like: **1
           }
           else
           {
