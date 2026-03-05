@@ -39,8 +39,8 @@
 	"name": "convert phonebook Fritzbox",
 	"description": "convert phonebook files from router Fritzbox .xml to .vcf (vcard) and backwards",
 	"programmingLanguage": "javascript",
-	"dateModified": "2026-03-04",
-	"softwareVersion": "0.352",
+	"dateModified": "2026-03-05",
+	"softwareVersion": "0.353",
 	"inLanguage": ["en", "de"],
     "mainEntityOfPage":"https://soerenj.github.io/fritzbox_phonebook_convert_xml_vcf/fritzbox_phonebook_convert_vcf.html",
 	"url":"https://soerenj.github.io/fritzbox_phonebook_convert_xml_vcf/fritzbox_phonebook_convert_vcf.html",
@@ -51,8 +51,8 @@
 </script>
 <!--
  /*
- * version: 0.352
- * date: 2026-03-04
+ * version: 0.353
+ * date: 2026-03-05
  *
  * Licence 
  *
@@ -203,22 +203,38 @@ input + label {vertical-align:top; }
 <textarea id="phonebook_xml" autocomplete="off">
 <?xml version="1.0" encoding="utf-8"?>
 <phonebooks>
-<phonebook owner="" name="phonebook1">
-<contact>
-<category>0</category>
-<person><realName>Person A</realName></person>
-<telephony nid="1"><number type="mobile" prio="1" id="0" quickdial="1" vanity="01">0176123456789</number></telephony>
-<services /><setup />
-<features doorphone="0" /><mod_time>1535972380</mod_time><uniqueid>227</uniqueid>
-</contact>
-<contact>
-<category>0</category>
-<person><realName>Person B</realName></person>
-<telephony nid="1"><number type="mobile" prio="1" id="0">+49176987654321</number></telephony>
-<services nid="1"><email classifier="private" id="0">test@example.com</email></services><setup />
-<features doorphone="0" /><mod_time>1535972450</mod_time><uniqueid>229</uniqueid>
-</contact>
-</phonebook>
+  <phonebook owner="" name="phonebook1">
+    <contact>
+      <category>0</category>
+      <person>
+        <realName>Person A</realName>
+      </person>
+      <telephony nid="1">
+        <number type="mobile" prio="1" id="0" quickdial="1" vanity="01">0176123456789</number>
+      </telephony>
+      <services />
+      <setup />
+      <features doorphone="0" />
+      <mod_time>1535972380</mod_time>
+      <uniqueid>227</uniqueid>
+    </contact>
+    <contact>
+      <category>0</category>
+      <person>
+        <realName>Person B</realName>
+      </person>
+      <telephony nid="1">
+        <number type="mobile" prio="1" id="0">+49176987654321</number>
+      </telephony>
+      <services nid="1">
+        <email classifier="private" id="0">test@example.com</email>
+      </services>
+      <setup />
+      <features doorphone="0" />
+      <mod_time>1535972450</mod_time>
+      <uniqueid>229</uniqueid>
+    </contact>
+  </phonebook>
 </phonebooks>
 </textarea>
 </div>
@@ -809,7 +825,7 @@ function convert_to_xml(){
  if( settings_charset_set=="CUSTOMTEXT") settings_charset_set=document.getElementById('settings_charset_set_customtext').value.toUpperCase();
  document.getElementById('settings_charset_set_detected_inlastvcf').innerText='';
 
- out += '<?xml version="1.0" encoding="utf-8"?>\n<phonebooks>\n<phonebook owner="" name="'+sanitize_realName(new_phonebook_name)+'">\n';
+ out += '<?xml version="1.0" encoding="utf-8"?>\n<phonebooks>\n  <phonebook owner="" name="'+sanitize_realName(new_phonebook_name)+'">\n';
 
  var contacts = text.split('BEGIN:VCARD');
  //detect charset
@@ -926,12 +942,12 @@ function convert_to_xml(){
     if((str.substr(0,3).toUpperCase()=='FN:' || str.substr(0,3).toUpperCase()=='FN;') && vcf_use_which_name=='FN'){
         strOut = str.substr( str.indexOf(':') + 1 );
         strOut = sanitize_realName(strOut,false);
-        personOut = '<person><realName>'+strOut+'</realName></person>\n';
+        personOut = '\n      <person>\n        <realName>'+strOut+'</realName>\n      </person>';
     }
     if((str.substr(0,2).toUpperCase()=='N:' || str.substr(0,2).toUpperCase()=='N;') && vcf_use_which_name=='N'){
         strOut = str.substr( str.indexOf(':') + 1 );
         strOut = sanitize_realName(strOut,false);
-        personOut = '<person><realName>'+strOut+'</realName></person>\n';
+        personOut = '\n      <person>\n        <realName>'+strOut+'</realName>\n      </person>';
     }
     
     if(str.substr(0,3).toUpperCase()=='TEL'){
@@ -941,13 +957,13 @@ function convert_to_xml(){
         
         if(type=='')
           if( document.getElementById("setting__2xml__phonenumber_edit_detect_mobile__active").checked && is_this_a_mobile_phonenumber(phone)) type='mobile';
-        if(type!='') typeOut='type="'+type.toLowerCase()+'"';
+        if(type!='') typeOut='type="'+type.toLowerCase()+'" ';
         var phone_sani = sanitize_realName(phone,true);
         if(phone_sani.length>0)
         {
           if(phone_sani.length>2 && phone_sani.search(/[0-9]{3}/)>=0)
           {
-            phoneOut += '<number '+typeOut+' id="'+j+'">'+sanitize_realName(phone,false)+'</number>\n';
+            phoneOut += '        <number '+typeOut+'id="'+j+'">'+sanitize_realName(phone,false)+'</number>\n';
           }
           else
           {
@@ -966,18 +982,18 @@ function convert_to_xml(){
     }
   }
   
-  if(email_temp!='' && email_temp.length>3)EmailOut+='<email>'+email_temp+'</email>';
+  if(email_temp!='' && email_temp.length>3)EmailOut+='\n        <email>'+email_temp+'</email>';
 
   var catNumber=0;  if(importantPersonCategorie) catNumber = 1;
-  out += '<contact>\n<category>'+catNumber+'</category>\n';
+  out += '    <contact>\n      <category>'+catNumber+'</category>';
   //how to detect the main-Number? phoneOut=phoneOut.replace(/(<number[^>]*)(>)/,'$1 prio="1">');
   if(v=="2.1")personOut = personOut.replace(/=/g,'%');
   if(v=="2.1")personOut = decodeURI(personOut);
-  out += personOut+'<telephony nid="'+i+'">\n' + phoneOut;
-  if(EmailOut!='') EmailOut='<services>'+EmailOut+'</services>';
-  out += '</telephony>\n'+EmailOut+'<setup />\n<features doorphone="0" /><mod_time></mod_time><uniqueid></uniqueid>\n</contact>\n';
+  out += personOut+'\n      <telephony nid="'+i+'">\n' + phoneOut;
+  if(EmailOut!='') EmailOut='\n      <services>'+EmailOut+'</services>';
+  out += '      </telephony>'+EmailOut+'\n      <setup />\n      <features doorphone="0" />\n      <mod_time></mod_time>\n      <uniqueid></uniqueid>\n    </contact>\n';
  }
- out += '</phonebook>\n</phonebooks>';
+ out += '  </phonebook>\n</phonebooks>';
  document.getElementById('phonebook_xml').value = out;
  show_errors(logError);
  return out;
