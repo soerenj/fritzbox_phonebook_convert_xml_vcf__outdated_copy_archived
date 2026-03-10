@@ -965,7 +965,7 @@ function convert_to_xml(){
           if( sanitize_realName(phone).length>2 &&
              (sanitize_realName(phone).search(/[0-9]{3}/)>=0 || sanitize_realName(phone).search(/\*\*[0-9]{1}/)>=0) )
           {
-            phoneOut += '        <number '+typeOut+'id="'+j+'">'+sanitize_realName(phone,false)+'</number>\n'; //number has a min length 3 and minimal three numbers //or must be internal number like: **1
+            phoneOut += '        <number '+typeOut+'>'+sanitize_realName(phone,false)+'</number>\n'; //number has a min length 3 and minimal three numbers //or must be internal number like: **1
           }
           else
           {
@@ -991,7 +991,7 @@ function convert_to_xml(){
   //how to detect the main-Number? phoneOut=phoneOut.replace(/(<number[^>]*)(>)/,'$1 prio="1">');
   if(v=="2.1")personOut = personOut.replace(/=/g,'%');
   if(v=="2.1")personOut = decodeURI(personOut);
-  out += personOut+'\n      <telephony nid="'+i+'">\n' + phoneOut;
+  out += personOut+'\n      <telephony>\n' + phoneOut;
   if(EmailOut!='') EmailOut='\n      <services>'+EmailOut+'</services>';
   out += '      </telephony>'+EmailOut+'\n      <setup />\n      <features doorphone="0" />\n      <mod_time></mod_time>\n      <uniqueid></uniqueid>\n    </contact>\n';
  }
